@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="theme-color" content="#dff7ef" />
+<title>こども銀行探検隊｜大阪信用金庫 花博公園支店</title>
+<meta name="app-version" content="2026-11-09-osaka-bank-v1"><meta name="description" content="6つのQRと金融クイズでお金のひみつを学ぶ、こども銀行探検隊。">
+<style>
+  :root{
+    --ink:#214239;
+    --muted:#5f746d;
+    --green:#2e9c70;
+    --green2:#5fc392;
+    --cream:#fffaf0;
+    --card:#ffffff;
+    --line:#d8ebe3;
+    --gold:#f7c948;
+    --orange:#f18d3d;
+    --water:#bfeaf1;
+    --shadow:0 12px 28px rgba(33,66,57,.14);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:linear-gradient(180deg,#f1fbf7 0,#e7f8f4 48%,#dff4fb 100%);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",Meiryo,system-ui,sans-serif}
+  body{min-height:100dvh;overflow-x:hidden}
+  button{font:inherit;color:inherit}
+  button:focus-visible{outline:4px solid rgba(46,156,112,.25);outline-offset:3px}
+
+  .app{width:min(100%,720px);margin:0 auto;min-height:100dvh;padding:calc(10px + env(safe-area-inset-top)) 12px calc(30px + env(safe-area-inset-bottom))}
+  .topbar{display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;padding:8px 0 10px;background:linear-gradient(180deg,rgba(241,251,247,.97) 0,rgba(241,251,247,.9) 75%,rgba(241,251,247,0) 100%);backdrop-filter:blur(6px)}
+  .brand{flex:1;min-width:0}
+  .brand small{display:block;font-weight:800;color:var(--green);letter-spacing:.08em;font-size:11px}
+  .brand h1{font-size:clamp(20px,5.4vw,30px);line-height:1.05;margin:2px 0 0;font-weight:900;letter-spacing:.01em}
+  .remaining,.key-badge{border:0;border-radius:18px;background:#fff;padding:9px 11px;box-shadow:0 5px 14px rgba(33,66,57,.10);font-weight:900;white-space:nowrap}
+  .remaining b{font-size:20px;color:var(--orange);margin:0 2px}
+  .key-badge{display:none;align-items:center;gap:6px;background:#fff5c9;border:2px solid #f4ce56;animation:keypop .45s ease both}
+  .key-badge.show{display:flex}
+  @keyframes keypop{from{transform:scale(.6) rotate(-8deg);opacity:0}70%{transform:scale(1.08) rotate(2deg)}to{transform:none;opacity:1}}
+
+  .guide{display:grid;grid-template-columns:86px 1fr;gap:10px;align-items:center;margin:8px 0 10px;padding:11px 13px;background:rgba(255,255,255,.88);border:1px solid rgba(216,235,227,.9);border-radius:24px;box-shadow:var(--shadow)}
+  .guide img{width:82px;height:82px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(33,66,57,.12))}
+  .speech{position:relative;background:#f8fff9;border:2px solid #d6efe2;border-radius:18px;padding:10px 12px;font-weight:800;font-size:14px;line-height:1.45}
+  .speech:before{content:"";position:absolute;left:-12px;top:27px;border-width:8px 12px 8px 0;border-style:solid;border-color:transparent #d6efe2 transparent transparent}
+  .speech:after{content:"";position:absolute;left:-9px;top:29px;border-width:6px 10px 6px 0;border-style:solid;border-color:transparent #f8fff9 transparent transparent}
+  .speech strong{color:var(--green)}
+
+  .instruction{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 2px 9px}
+  .instruction p{margin:0;font-weight:800;font-size:13px;color:#546b64}
+  .help-btn{border:0;background:transparent;color:var(--green);font-weight:900;padding:7px 8px}
+
+  .map-wrap{position:relative;border-radius:28px;padding:10px;background:#fff;box-shadow:var(--shadow);border:1px solid #d5e9e2;overflow:hidden}
+  .map{position:relative;aspect-ratio:3/2;border-radius:20px;overflow:hidden;background:var(--water);isolation:isolate}
+  .map svg.base-map{width:100%;height:100%;display:block}
+  .gridlines{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);pointer-events:none;z-index:3}
+  .gridlines i{border-right:2px dashed rgba(33,66,57,.22);border-bottom:2px dashed rgba(33,66,57,.22)}
+  .gridlines i:nth-child(3n){border-right:0}.gridlines i:nth-child(n+4){border-bottom:0}
+
+  .pieces{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);z-index:5}
+  .piece{position:relative;border:0;background:#fff;display:grid;place-items:center;padding:0;cursor:pointer;overflow:hidden;transition:background .5s ease,opacity .5s ease;box-shadow:inset 0 0 0 1px #e2ece8}
+  .piece:nth-child(1){border-radius:18px 0 0 0}.piece:nth-child(3){border-radius:0 18px 0 0}.piece:nth-child(4){border-radius:0 0 0 18px}.piece:nth-child(6){border-radius:0 0 18px 0}
+  .piece::after{content:"?";position:absolute;right:10px;top:8px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:900;background:#ecf7f1;color:#4a8b70}
+  .piece .dino{width:75%;height:75%;max-width:120px;max-height:100px;transition:transform .25s ease,opacity .45s ease;filter:drop-shadow(0 4px 4px rgba(33,66,57,.12))}
+  .piece:hover .dino,.piece:active .dino{transform:scale(1.06)}
+  .piece.found{background:transparent;pointer-events:none;box-shadow:none}
+  .piece.found::after{display:none}.piece.found .dino{opacity:0;transform:scale(1.5) rotate(6deg)}
+  .piece.just-found{animation:flash .8s ease}
+  @keyframes flash{0%,100%{background:transparent}35%{background:rgba(255,255,255,.95)}}
+
+  .legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .legend span{font-size:12px;font-weight:800;color:#567168;background:#f1f9f5;border-radius:999px;padding:6px 9px}
+
+  .chest{position:absolute;left:50%;top:55%;z-index:12;transform:translate(-50%,-50%) scale(0);border:0;background:transparent;width:110px;height:95px;padding:0;filter:drop-shadow(0 10px 10px rgba(91,58,22,.25));cursor:pointer}
+  .chest.show{animation:chestIn .8s cubic-bezier(.2,1.4,.3,1) forwards}
+  @keyframes chestIn{0%{transform:translate(-50%,-50%) scale(0) rotate(-12deg)}70%{transform:translate(-50%,-50%) scale(1.15) rotate(3deg)}100%{transform:translate(-50%,-50%) scale(1)}}
+  .chest .vault{display:grid;place-items:center;width:100%;height:100%;border:5px solid #dba94b;border-radius:25px;background:linear-gradient(145deg,#fff4c7,#e8f3ff);font-size:54px}.chest .vault-lock{position:absolute;right:-5px;bottom:-2px;font-size:30px}
+  .chest-label{position:absolute;left:50%;bottom:7%;z-index:13;transform:translateX(-50%);background:#fff7cb;border:2px solid #e5bf44;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:900;white-space:nowrap;opacity:0;pointer-events:none}
+  .chest-label.show{animation:fadeUp .5s .55s both}@keyframes fadeUp{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+
+  .footer-note{text-align:center;margin:14px 0 0;font-size:12px;color:#70827c;font-weight:700}
+  .test-panel{display:none;margin-top:12px;background:#fff;border:2px dashed #a8cfc0;border-radius:16px;padding:12px}
+  .test-panel.show{display:block}.test-panel h3{margin:0 0 8px;font-size:14px}.test-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .test-buttons button,.reset-btn{border:1px solid #cfe4da;background:#f3fbf7;border-radius:10px;padding:9px 5px;font-weight:800;font-size:12px}
+  .reset-btn{margin-top:8px;width:100%;background:#fff3f1;border-color:#f1c9c2;color:#a34c40}
+
+  .overlay{position:fixed;inset:0;background:rgba(20,48,41,.62);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+  .overlay.show{display:flex}
+  .modal{width:min(94vw,520px);max-height:88dvh;overflow:auto;background:#fff;border-radius:28px;padding:20px;box-shadow:0 24px 60px rgba(12,44,35,.25);text-align:center;position:relative;isolation:isolate;opacity:1}
+  .modal .chi{width:125px;height:125px;object-fit:contain;margin:-4px auto 0;display:block}
+  .modal h2{margin:2px 0 8px;font-size:clamp(23px,6vw,32px);line-height:1.22;color:#173f35;font-weight:900;line-break:strict;word-break:normal}
+  .modal p{margin:8px 0 12px;line-height:1.65;font-weight:700;color:#405a52;line-break:strict;word-break:normal}
+  .main-btn{width:100%;border:0;border-radius:16px;padding:14px 15px;background:linear-gradient(135deg,#2f9d70,#5bc58e);color:#fff;font-size:17px;font-weight:900;box-shadow:0 8px 18px rgba(46,156,112,.25)}
+  .sub-btn{width:100%;border:0;background:#edf8f3;border-radius:14px;padding:12px;font-weight:900;color:#34775c;margin-top:8px}
+  .steps{display:grid;gap:8px;text-align:left;margin:12px 0 16px}
+  .step{display:grid;grid-template-columns:36px 1fr;gap:9px;align-items:center;background:#f5fbf8;border-radius:15px;padding:9px 11px;font-weight:800;font-size:14px}
+  .step > b{width:32px;height:32px;display:grid;place-items:center;background:#dff4e9;border-radius:50%;font-size:17px;flex:none}.step span{line-height:1.5;color:#294a40;line-break:strict;word-break:normal}.step span strong{color:#126444;font-weight:900}
+  .hint-dino{height:108px;margin:5px auto 4px;display:grid;place-items:center;overflow:hidden}.hint-dino svg{display:block;width:148px;height:108px;max-width:52vw;max-height:108px}.dino-name{color:#0d5a42!important;font-weight:900!important;font-size:clamp(25px,7vw,34px)!important}.hint-box{background:#fff0ad;border:2px solid #d8a524;border-radius:17px;padding:13px 14px;margin:10px 0 13px;font-weight:900;font-size:15px;line-height:1.6;color:#493500;line-break:strict;word-break:normal}.status-line{font-size:14px;color:#3f5d53!important;font-weight:900!important}
+
+  .footprint-game{display:flex;justify-content:center;gap:14px;margin:10px 0 16px;min-height:74px;align-items:center}
+  .foot{border:0;background:transparent;font-size:50px;transform:rotate(-18deg);transition:.15s;filter:drop-shadow(0 5px 4px rgba(33,66,57,.13))}
+  .foot:nth-child(2){transform:rotate(11deg) translateY(-8px)}.foot:nth-child(3){transform:rotate(-9deg) translateY(4px)}
+  .foot.tapped{transform:scale(.5);opacity:.2;pointer-events:none}
+  .mini-count{font-weight:900;color:var(--green);font-size:14px}
+
+  .reward-card{background:linear-gradient(135deg,#fff7c8,#ffe089);border:3px solid #e9bd3d;border-radius:22px;padding:18px;margin:10px 0 14px}
+  .big-key{font-size:72px;line-height:1;animation:keyWiggle 1.1s ease infinite alternate}@keyframes keyWiggle{from{transform:rotate(-7deg)}to{transform:rotate(8deg)}}
+  .reward-card b{display:block;font-size:24px;margin-top:5px;color:#805d13}
+
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+  .confetti i{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;animation:fall 1.7s linear forwards}
+  @keyframes fall{to{transform:translate(var(--drift),105vh) rotate(760deg);opacity:.9}}
+
+  @media (max-width:430px){
+    .app{padding-left:9px;padding-right:9px}.guide{grid-template-columns:68px 1fr;padding:9px 10px}.guide img{width:64px;height:64px}.speech{font-size:13px;line-height:1.5}.map-wrap{padding:7px;border-radius:22px}.map{border-radius:16px}.piece::after{width:22px;height:22px;font-size:12px;right:6px;top:5px}.remaining{padding:8px 9px;font-size:12px}.key-badge{font-size:12px;padding:8px 9px}.brand h1{font-size:21px}.legend{gap:5px}.legend span{font-size:10.5px;padding:5px 7px}.modal{width:calc(100vw - 24px);max-height:calc(100dvh - 28px);padding:16px 15px 17px;border-radius:22px}.modal .chi{width:96px;height:96px}.modal h2{font-size:25px;margin:1px 0 7px}.modal p{font-size:14px;line-height:1.55}.steps{gap:7px;margin:10px 0 12px}.step{grid-template-columns:34px minmax(0,1fr);gap:8px;padding:8px 10px;font-size:13.5px}.step > b{width:30px;height:30px;font-size:16px}.hint-box{font-size:14.5px;padding:11px 12px}.dino-name{font-size:27px!important}.status-line{font-size:13.5px!important}}
+
+  /* Production reliability additions */
+  .map.complete .gridlines{opacity:0;transition:opacity .35s ease}
+  .map.complete{box-shadow:inset 0 0 0 3px rgba(247,201,72,.45)}
+  .save-warning{display:none;margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#fff3cd;border:1px solid #e7c75f;color:#6e5814;font-size:12px;font-weight:800;line-height:1.55}
+  .save-warning.show{display:block}
+  .scan-ok{display:inline-flex;align-items:center;gap:7px;background:#ecf9f2;color:#207452;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:900;margin-bottom:8px}
+  .scan-check{font-size:42px;line-height:1;margin:4px 0 8px}
+  .footprint-game.optional .foot{animation:pop .45s ease both}
+  .footprint-game.optional .foot:nth-child(2){animation-delay:.08s}.footprint-game.optional .foot:nth-child(3){animation-delay:.16s}
+
+  /* --- In-app QR scanner: keeps the adventure on one page --- */
+  .scan-launch{margin:12px 0 8px;padding:12px;background:#fff;border:1px solid #d5e9e2;border-radius:20px;box-shadow:0 8px 20px rgba(33,66,57,.09);text-align:center}
+  .scan-main-btn{width:100%;border:0;border-radius:16px;padding:15px 18px;background:linear-gradient(180deg,#39a97b,#268c64);color:#fff;font-weight:900;font-size:18px;box-shadow:0 7px 14px rgba(38,140,100,.23);cursor:pointer}
+  .scan-main-btn:active{transform:translateY(1px)}
+  .scan-main-btn:disabled{opacity:.55;cursor:wait}
+  .scan-note{margin:7px 4px 0;color:#516b62;font-size:12px;font-weight:800;line-height:1.5}
+  .scan-note b{color:#247a59}
+  .scanner-overlay{position:fixed;inset:0;z-index:220;display:none;background:#102b24;color:#fff;align-items:stretch;justify-content:center;padding:calc(10px + env(safe-area-inset-top)) 10px calc(10px + env(safe-area-inset-bottom))}
+  .scanner-overlay.show{display:flex}
+  .scanner-shell{width:min(100%,680px);display:flex;flex-direction:column;min-height:0}
+  .scanner-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 2px 10px}
+  .scanner-head strong{font-size:17px}.scanner-close{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:8px 13px;font-weight:900}
+  .scanner-view{position:relative;flex:1;min-height:280px;max-height:68dvh;border-radius:22px;overflow:hidden;background:#071711;border:2px solid rgba(255,255,255,.18)}
+  #scanVideo{width:100%;height:100%;object-fit:cover;display:block;background:#071711}
+  #scanCanvas{display:none}
+  .scanner-frame{position:absolute;left:12%;right:12%;top:18%;bottom:18%;border:4px solid rgba(255,255,255,.96);border-radius:20px;box-shadow:0 0 0 9999px rgba(0,0,0,.18);pointer-events:none}
+  .scanner-frame:before,.scanner-frame:after{content:"";position:absolute;left:8%;right:8%;height:3px;background:#65f0b3;box-shadow:0 0 12px rgba(101,240,179,.8)}
+  .scanner-frame:before{top:50%;animation:scanline 1.9s ease-in-out infinite alternate}.scanner-frame:after{display:none}
+  @keyframes scanline{from{transform:translateY(-90px)}to{transform:translateY(90px)}}
+  .scanner-status{margin:10px 2px 0;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.1);font-weight:900;text-align:center;line-height:1.45;min-height:44px}
+  .scanner-status.error{background:#5f2626}.scanner-status.ok{background:#1d684d}
+  .scanner-sub{margin:7px 7px 0;text-align:center;color:#d3e6df;font-size:11.5px;line-height:1.5;font-weight:700}
+  .scanner-retry{display:none;margin:9px auto 0;border:0;border-radius:14px;padding:11px 16px;background:#fff;color:#1f5f49;font-weight:900}
+  .scanner-retry.show{display:block}
+  @media(max-width:430px){.scan-main-btn{font-size:17px;padding:14px}.scanner-view{min-height:330px}.scanner-frame{left:10%;right:10%;top:20%;bottom:20%}}
+
+
+:root{--ink:#193c60;--muted:#58748a;--green:#216d9e;--green2:#58bed5;--line:#d8eaf4;--gold:#f5c95c;--orange:#bc873a;--water:#d7edf9;--shadow:0 12px 28px rgba(23,73,110,.13)}
+html,body{background:linear-gradient(180deg,#f4fbff,#e6f4ff 62%,#fff9e7)}
+.topbar{background:linear-gradient(180deg,rgba(244,251,255,.98),rgba(244,251,255,.9) 75%,transparent)}.brand small{color:#1e688c;font-size:10px;letter-spacing:0;line-height:1.4}.brand h1{font-size:clamp(20px,5.2vw,28px)}
+.speech{background:#f5fbff;border-color:#c7e5f5}.speech:before{border-right-color:#c7e5f5}.speech:after{border-right-color:#f5fbff}
+.piece::after{background:#eaf5ff;color:#2a6d95}.modal h2{color:#174e70}.dino-name{color:#176b9a!important}.step{background:#eff8ff}.step>b{background:#dcefff}.step span{color:#285572}.step span strong{color:#196c98}
+.hint-box{background:#fff5cb;border-color:#e5c367;color:#604b1d}
+.main-btn{background:linear-gradient(135deg,#1b71a9,#45aac9);box-shadow:0 8px 16px rgba(30,109,167,.22)}.scan-main-btn{background:linear-gradient(180deg,#248ebd,#176fa6)}.scanner-overlay{background:#0d2a3f}.chest{width:112px;height:112px;top:53%}
+.quiz-question{background:#edf8ff;border-radius:15px;padding:15px 12px;color:#165477!important;font-size:18px;font-weight:900!important}.quiz-options{display:grid;gap:9px;margin:14px 0}.quiz-choice{border:2px solid #b6daef;border-radius:15px;background:white;color:#225f84;padding:13px;text-align:left;font-size:15px;font-weight:900;cursor:pointer}.quiz-choice:focus-visible{border-color:#276fa1;background:#eaf6ff}.quiz-explain{padding:18px 15px;background:#fff3c9;border:2px solid #ebcc72;border-radius:17px;font-weight:800;line-height:1.7;color:#5c491d}.quiz-help{font-size:12px!important;color:#567188!important}
+@media(max-width:430px){.brand small{font-size:9px}.brand h1{font-size:19px}.quiz-choice{font-size:14px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><small>大阪信用金庫 花博公園支店｜イベント企画・試作版</small><h1>こども銀行探検隊</h1></div>
+    <button id="keyBadge" class="key-badge" aria-label="探検隊認定証を見る"><span>🏅</span><span>認定証</span></button>
+    <div id="remaining" class="remaining">あと <b>6</b> つ</div>
+  </header>
+
+  <section class="guide" aria-label="ちーちゃんの案内">
+    <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%2218%22%20y%3D%2243%22%20width%3D%2284%22%20height%3D%2264%22%20rx%3D%2217%22%20fill%3D%22%2352b6dd%22%20stroke%3D%22%23185076%22%20stroke-width%3D%225%22%2F%3E%3Cpath%20d%3D%22M12%2045%2060%2013%20108%2045%22%20fill%3D%22%23ffce68%22%20stroke%3D%22%23185076%22%20stroke-width%3D%226%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2247%22%20y%3D%2268%22%20width%3D%2226%22%20height%3D%2239%22%20rx%3D%226%22%20fill%3D%22%23fff5d2%22%2F%3E%3Ccircle%20cx%3D%2243%22%20cy%3D%2267%22%20r%3D%225%22%20fill%3D%22%23173d64%22%2F%3E%3Ccircle%20cx%3D%2277%22%20cy%3D%2267%22%20r%3D%225%22%20fill%3D%22%23173d64%22%2F%3E%3Cpath%20d%3D%22M52%2086q8%209%2016%200%22%20fill%3D%22none%22%20stroke%3D%22%23173d64%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2227%22%20r%3D%227%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E" alt="こども銀行の案内役ぎんちゃん" />
+    <div id="guideText" class="speech"><strong>ぎんちゃん：</strong> 6つのマークをタップして、QRを探そう！お金のひみつが学べるよ。</div>
+  </section>
+
+  <div class="instruction">
+    <p>マークをタップ → QRを探す → クイズに挑戦！</p>
+    <button id="helpBtn" class="help-btn">あそびかた</button>
+  </div>
+
+  <main class="map-wrap">
+    <div class="map" id="map">
+      <svg class="base-map" viewBox="0 0 900 600" role="img" aria-label="銀行の街の地図">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#b5e8fe"/><stop offset="1" stop-color="#e9f8fc"/></linearGradient><linearGradient id="park" x2="1" y2="1"><stop stop-color="#b8e4a0"/><stop offset="1" stop-color="#79c8a4"/></linearGradient><filter id="bd"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-opacity=".16"/></filter></defs>
+<rect width="900" height="600" fill="url(#sky)"/><circle cx="825" cy="77" r="43" fill="#ffdf83"/>
+<g fill="white"><ellipse cx="105" cy="90" rx="80" ry="25"/><circle cx="90" cy="71" r="29"/><circle cx="146" cy="74" r="30"/><ellipse cx="596" cy="83" rx="74" ry="24"/><circle cx="574" cy="67" r="31"/></g>
+<path d="M0 275Q240 214 380 288T900 277V600H0Z" fill="url(#park)"/>
+<path d="M-40 521Q148 473 322 518T685 509T940 534" fill="none" stroke="#fff1cf" stroke-width="117"/>
+<path d="M-40 521Q148 473 322 518T685 509T940 534" fill="none" stroke="#cdd9d8" stroke-width="86"/>
+<path d="M445 284V600" stroke="#fff1cf" stroke-width="112"/><path d="M445 284V600" stroke="#cdd9d8" stroke-width="79"/>
+<g stroke="white" stroke-width="6" stroke-dasharray="23 25"><path d="M-40 521Q148 473 322 518T685 509T940 534" fill="none"/><path d="M445 300V600"/></g>
+<g transform="translate(302 166)" filter="url(#bd)"><rect x="0" y="77" width="297" height="206" rx="12" fill="#f7fbff" stroke="#216595" stroke-width="9"/><path d="M-16 83 148 0 313 83Z" fill="#1c5e90" stroke="#17486d" stroke-width="10" stroke-linejoin="round"/><rect x="32" y="101" width="233" height="41" rx="7" fill="#17699b"/><text x="148" y="130" text-anchor="middle" font-size="27" font-weight="900" fill="white">こども銀行</text><g fill="#aadfff" stroke="#3b80b4" stroke-width="5"><rect x="28" y="158" width="63" height="85" rx="5"/><rect x="203" y="158" width="63" height="85" rx="5"/></g><rect x="115" y="160" width="66" height="123" rx="8" fill="#ffcf78" stroke="#b77b3a" stroke-width="6"/><circle cx="167" cy="218" r="5" fill="#875c21"/><circle cx="148" cy="53" r="25" fill="#ffd35e" stroke="white" stroke-width="5"/><text x="148" y="63" font-size="27" text-anchor="middle" font-weight="900" fill="#98601b">¥</text></g>
+<g transform="translate(48 296)" filter="url(#bd)"><rect y="26" width="194" height="158" rx="10" fill="#fff1d8" stroke="#ba7f5b" stroke-width="7"/><path d="M-8 34 95-28 201 34Z" fill="#f8a08a" stroke="#c8705b" stroke-width="7"/><rect x="25" y="55" width="146" height="34" rx="7" fill="white"/><text x="98" y="80" text-anchor="middle" font-size="24" font-weight="900" fill="#aa6645">パン屋さん</text><rect x="26" y="110" width="58" height="74" fill="#9ed8fa"/><rect x="116" y="110" width="52" height="74" fill="#9ed8fa"/></g>
+<g transform="translate(662 298)" filter="url(#bd)"><rect width="187" height="176" rx="11" fill="#e8f8ef" stroke="#468f73" stroke-width="7"/><path d="M-9 31 91-31 194 31" fill="#80cfa7" stroke="#468f73" stroke-width="9"/><rect x="24" y="45" width="139" height="38" rx="6" fill="white"/><text x="94" y="72" text-anchor="middle" font-size="25" font-weight="900" fill="#41775c">おみせ</text><rect x="25" y="99" width="51" height="77" fill="#9bd9f7"/><rect x="110" y="99" width="53" height="77" fill="#9bd9f7"/></g>
+<g fill="#46965c" stroke="#32854d" stroke-width="4"><circle cx="70" cy="235" r="35"/><circle cx="110" cy="224" r="37"/><circle cx="782" cy="226" r="35"/><circle cx="833" cy="228" r="39"/><circle cx="262" cy="197" r="29"/></g>
+<g fill="#ffd366" stroke="#f2aa48" stroke-width="4"><circle cx="165" cy="551" r="19"/><circle cx="207" cy="556" r="20"/><circle cx="722" cy="555" r="20"/></g>
+<text x="449" y="580" text-anchor="middle" font-size="22" font-weight="900" fill="#245f79">みんなでつくる おかねのまち</text>
+</svg>
+
+      <div class="gridlines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="pieces" id="pieces"></div>
+      <button id="treasureChest" class="chest" aria-label="銀行の金庫をあける"><span class="vault">🏦</span><span class="vault-lock">🔐</span></button>
+      <div id="chestLabel" class="chest-label">金庫をタップ！</div>
+    </div>
+    <div class="legend"><span>💡 6つのひみつ</span><span>📷 アプリ内でQRを読む</span><span>🗺️ 6枚で完成</span></div>
+  </main>
+
+  <section class="scan-launch" aria-label="QRコード読み取り">
+    <button id="scanBtn" class="scan-main-btn" type="button">📷 QRを読み取る</button>
+    <p class="scan-note"><b>会場の6つのQRはこのボタンから。</b><br>iPhoneのカメラアプリには戻らず、この地図画面のまま読み取ります。</p>
+  </section>
+
+  <p class="footer-note">進みぐあいはこの端末だけに保存。氏名や口座番号は入力しません。</p>
+  <div id="saveWarning" class="save-warning">⚠ このブラウザでは進行状況を保存できない可能性があります。イベントではSafariまたはChromeの通常モードで開いてください。</div>
+
+  <section id="testPanel" class="test-panel">
+    <h3>運営・テスト用：QR読み込みをシミュレーション</h3>
+    <div id="testButtons" class="test-buttons"></div>
+    <button id="resetBtn" class="reset-btn">この端末の進行をリセット</button>
+  </section>
+</div>
+
+<div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-live="polite">
+  <div id="modal" class="modal"></div>
+</div>
+
+<div id="scannerOverlay" class="scanner-overlay" role="dialog" aria-modal="true" aria-label="QRコード読み取り">
+  <div class="scanner-shell">
+    <div class="scanner-head"><strong>こども銀行のQRを読み取ろう</strong><button id="scannerClose" class="scanner-close" type="button">やめる</button></div>
+    <div class="scanner-view">
+      <video id="scanVideo" playsinline muted autoplay></video>
+      <canvas id="scanCanvas"></canvas>
+      <div class="scanner-frame" aria-hidden="true"></div>
+    </div>
+    <div id="scannerStatus" class="scanner-status">カメラを準備しています…</div>
+    <button id="scannerRetry" class="scanner-retry" type="button">もう一度カメラを開く</button>
+    <div class="scanner-sub">QRを枠に入れたらクイズが始まるよ。</div>
+  </div>
+</div>
+
+<div id="confetti" class="confetti" aria-hidden="true"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const STORE = 'osaka-bank-quiz-v1';
+  const COOKIE = 'osaka_bank_progress';
+  const CHI = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20x%3D%2218%22%20y%3D%2243%22%20width%3D%2284%22%20height%3D%2264%22%20rx%3D%2217%22%20fill%3D%22%2352b6dd%22%20stroke%3D%22%23185076%22%20stroke-width%3D%225%22%2F%3E%3Cpath%20d%3D%22M12%2045%2060%2013%20108%2045%22%20fill%3D%22%23ffce68%22%20stroke%3D%22%23185076%22%20stroke-width%3D%226%22%20stroke-linejoin%3D%22round%22%2F%3E%3Crect%20x%3D%2247%22%20y%3D%2268%22%20width%3D%2226%22%20height%3D%2239%22%20rx%3D%226%22%20fill%3D%22%23fff5d2%22%2F%3E%3Ccircle%20cx%3D%2243%22%20cy%3D%2267%22%20r%3D%225%22%20fill%3D%22%23173d64%22%2F%3E%3Ccircle%20cx%3D%2277%22%20cy%3D%2267%22%20r%3D%225%22%20fill%3D%22%23173d64%22%2F%3E%3Cpath%20d%3D%22M52%2086q8%209%2016%200%22%20fill%3D%22none%22%20stroke%3D%22%23173d64%22%20stroke-width%3D%224%22%20stroke-linecap%3D%22round%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2227%22%20r%3D%227%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E";
+  const dinos=[
+{id:'money',name:'お金のひみつ',hint:'お札や硬貨のマークが目じるし。',color:'#e9b04d',icon:'💴',question:'日本で使うお金の単位は？',choices:['円（えん）','ドル','ユーロ'],answer:0,explain:'日本のお金は「円」。お金には硬貨とお札があるよ。'},
+{id:'spend',name:'お金を上手に使おう',hint:'お買い物のマークを見つけよう。',color:'#e58c6a',icon:'🛍️',question:'100円のおかしを2つ買うと？',choices:['100円','200円','300円'],answer:1,explain:'100円を2つで200円！ 買う前に合計を考えよう。'},
+{id:'save',name:'お金をためよう',hint:'貯金箱のマークをさがそう。',color:'#d79d66',icon:'🐷',question:'毎日10円ずつ5日間ためると？',choices:['15円','50円','100円'],answer:1,explain:'10円×5日で50円。こつこつ貯めると大きくなるよ。'},
+{id:'deposit',name:'信用金庫のしごと',hint:'銀行のマークのQRはどこかな？',color:'#65b3d7',icon:'🏦',question:'信用金庫はどんなことをする？',choices:['お金をあずかる','お金を勝手に作る','ただでお金を配る'],answer:0,explain:'信用金庫はみんなのお金を大切にあずかり、必要なときに引き出せるようにしているよ。'},
+{id:'town',name:'銀行とまちのつながり',hint:'まちのお店のマークをさがそう。',color:'#77bc95',icon:'🏪',question:'パン屋さんがお店を作るとき、信用金庫が手伝えるのは？',choices:['名前を決める','必要なお金を貸す','パンを作る'],answer:1,explain:'信用金庫は地域のお店や会社にお金を貸して、まちを支える仕事もしているよ。'},
+{id:'protect',name:'お金を守ろう',hint:'盾のマークを見つけよう。',color:'#8b9cda',icon:'🛡️',question:'カードの暗証番号はどうする？',choices:['友だちに教える','カードに書く','だれにも教えない'],answer:2,explain:'暗証番号は大切なひみつ。信用金庫の人を名乗る相手にも教えないでね。'}
+];
+const validIds=new Set(dinos.map(d=>d.id));
+const legacyGet={};
+const aliases=Object.fromEntries(dinos.flatMap((d,i)=>[[d.id,d.id],[String(i+1),d.id]]));
+const overlay = document.getElementById('overlay');
+  const modal = document.getElementById('modal');
+  const pieces = document.getElementById('pieces');
+  const remaining = document.getElementById('remaining');
+  const guideText = document.getElementById('guideText');
+  const chest = document.getElementById('treasureChest');
+  const chestLabel = document.getElementById('chestLabel');
+  const keyBadge = document.getElementById('keyBadge');
+  const confetti = document.getElementById('confetti');
+  const mapEl = document.querySelector('.map');
+  const saveWarning = document.getElementById('saveWarning');
+  const scanBtn = document.getElementById('scanBtn');
+  const scannerOverlay = document.getElementById('scannerOverlay');
+  const scannerClose = document.getElementById('scannerClose');
+  const scannerRetry = document.getElementById('scannerRetry');
+  const scannerStatus = document.getElementById('scannerStatus');
+  const scanVideo = document.getElementById('scanVideo');
+  const scanCanvas = document.getElementById('scanCanvas');
+
+  function blankState(){return {found:[],key:false,intro:false,pending:null};}
+
+  function normalize(raw){
+    const out=blankState();
+    if(!raw || typeof raw!=='object') return out;
+    const list=Array.isArray(raw.found)?raw.found:[];
+    out.found=[...new Set(list.map(String).map(s=>s.toLowerCase()).filter(id=>validIds.has(id)))];
+    out.intro=!!raw.intro;
+    out.key=!!raw.key && out.found.length===dinos.length;
+    out.pending=validIds.has(raw.pending)&&!out.found.includes(raw.pending)?raw.pending:null;
+    return out;
+  }
+
+  function readLocal(){
+    try { const v=localStorage.getItem(STORE); return v?normalize(JSON.parse(v)):blankState(); }
+    catch(e){ return blankState(); }
+  }
+
+  function readCookie(){
+    try{
+      const prefix=COOKIE+'=';
+      const part=document.cookie.split(';').map(s=>s.trim()).find(s=>s.startsWith(prefix));
+      if(!part) return blankState();
+      return normalize(JSON.parse(decodeURIComponent(part.slice(prefix.length))));
+    }catch(e){ return blankState(); }
+  }
+
+  function mergeStates(a,b){
+    const found=[...new Set([...(a.found||[]),...(b.found||[])])].filter(id=>validIds.has(id));
+    return {found,intro:!!(a.intro||b.intro),key:!!(a.key||b.key)&&found.length===dinos.length,pending:validIds.has(a.pending)&&!found.includes(a.pending)?a.pending:validIds.has(b.pending)&&!found.includes(b.pending)?b.pending:null};
+  }
+
+  let state=mergeStates(readLocal(),readCookie());
+
+  function writeState(){
+    state=normalize(state);
+    const data=JSON.stringify(state);
+    let localOK=false, cookieOK=false;
+    try{
+      localStorage.setItem(STORE,data);
+      localOK=localStorage.getItem(STORE)===data;
+    }catch(e){}
+    try{
+      const secure=location.protocol==='https:'?'; Secure':'';
+      document.cookie=`${COOKIE}=${encodeURIComponent(data)}; Max-Age=2592000; Path=/; SameSite=Lax${secure}`;
+      cookieOK=document.cookie.split(';').some(s=>s.trim().startsWith(COOKIE+'='));
+    }catch(e){}
+    saveWarning.classList.toggle('show', !(localOK||cookieOK));
+    return localOK||cookieOK;
+  }
+
+  function syncFromStorage(){
+    const merged=mergeStates(state,mergeStates(readLocal(),readCookie()));
+    const changed=JSON.stringify(merged)!==JSON.stringify(state);
+    state=merged;
+    if(changed){ writeState(); renderPieces(); }
+  }
+
+  function dinoSVG(symbol,color){
+return '<svg viewBox="0 0 120 110" aria-hidden="true"><rect x="9" y="10" width="102" height="90" rx="24" fill="'+color+'" opacity=".18"/><rect x="19" y="18" width="82" height="74" rx="24" fill="white"/><text x="60" y="75" text-anchor="middle" font-size="53">'+symbol+'</text></svg>';
+}
+function renderPieces(){
+    state=normalize(state);
+    pieces.innerHTML='';
+    dinos.forEach(d => {
+      const found=state.found.includes(d.id);
+      const btn=document.createElement('button');
+      btn.className='piece'+(found?' found':'');
+      btn.dataset.id=d.id;
+      btn.setAttribute('aria-label', found ? `${d.name}の地図は取得済み` : `${d.name}のヒントを見る`);
+      btn.setAttribute('aria-disabled', found?'true':'false');
+      btn.innerHTML=`<div class="dino">${dinoSVG(d.icon,d.color)}</div>`;
+      if(!found) btn.addEventListener('click',()=>showHint(d));
+      pieces.appendChild(btn);
+    });
+    updateStatus();
+  }
+
+  function updateStatus(){
+const left=dinos.length-state.found.length;
+remaining.innerHTML=left===0?'地図 <b>完成！</b>':'あと <b>'+left+'</b> つ';
+mapEl.classList.toggle('complete',left===0);chest.classList.toggle('show',left===0);
+chestLabel.classList.toggle('show',left===0&&!state.key);
+keyBadge.classList.toggle('show',state.key);
+if(state.key)guideText.innerHTML='<strong>ぎんちゃん：</strong> よくできたね！認定証をスタッフに見せよう。';
+else if(state.pending)guideText.innerHTML='<strong>ぎんちゃん：</strong> QRを読み取ったよ！クイズをクリアして地図を開こう。';
+else if(left===0)guideText.innerHTML='<strong>ぎんちゃん：</strong> 地図が完成！金庫をタップして認定証をもらおう。';
+else guideText.innerHTML='<strong>ぎんちゃん：</strong> あと <b>'+left+'つ</b>。マークをタップして会場のQRを探そう！';
+}
+function openModal(html){ modal.innerHTML=html; overlay.classList.add('show'); }
+  function closeModal(){ overlay.classList.remove('show'); }
+  overlay.addEventListener('click',e=>{if(e.target===overlay) closeModal();});
+
+  function showIntro(){
+openModal(`<img class="chi" src="${CHI}" alt="ぎんちゃん"><h2>こども銀行へ<br>ようこそ！</h2><p>ぼくは案内係の <b>ぎんちゃん</b>。<br>6つのお金のひみつを発見しよう！</p><div class="steps"><div class="step"><b>1</b><span>地図のマークをタップしてヒントを見る</span></div><div class="step"><b>2</b><span>会場にあるQRを探す（順番は自由）</span></div><div class="step"><b>3</b><span>この画面の <strong>「QRを読み取る」</strong>で読み、お金のクイズに答える</span></div><div class="step"><b>4</b><span>6つそろえると金庫が開く！</span></div></div><div class="hint-box">STARTだけはスマホのカメラでOK。<br>あとの6つは、このアプリのカメラから読んでね。</div><button class="main-btn" id="startBtn">探検スタート！</button>`);
+document.getElementById('startBtn').onclick=()=>{state.intro=true;writeState();closeModal();};
+}
+function showHelp(){
+openModal(`<img class="chi" src="${CHI}" alt="ぎんちゃん"><h2>あそびかた</h2><div class="steps"><div class="step"><b>💡</b><span>地図の6つのマークからヒントを見る</span></div><div class="step"><b>📷</b><span>会場のQRを「QRを読み取る」ボタンから読む</span></div><div class="step"><b>❓</b><span>かんたんなクイズに答えて、お金について学ぶ</span></div><div class="step"><b>🗺️</b><span>地図が少しずつ開く。一度開いた地図は閉じない</span></div><div class="step"><b>🏅</b><span>6つそろうと金庫と認定証が登場！</span></div></div><button class="main-btn" id="closeHelp">わかった！</button>`);
+document.getElementById('closeHelp').onclick=closeModal;
+}
+function showHint(d){
+openModal(`<div class="hint-dino">${dinoSVG(d.icon,d.color)}</div><h2 class="dino-name">${d.name}</h2><div class="hint-box">💡 ${d.hint}</div><p>見つけたQRをアプリのカメラで読み取ろう。</p><button class="main-btn" id="hintClose">探しに行く！</button>`);
+document.getElementById('hintClose').onclick=closeModal;
+}
+function showMissionQuiz(d){
+state.pending=d.id;state.intro=true;writeState();
+const options=d.choices.map((c,i)=>`<button class="quiz-choice" data-choice="${i}">${i+1}. ${c}</button>`).join('');
+openModal(`<div class="hint-dino">${dinoSVG(d.icon,d.color)}</div><div class="scan-ok">✓ QR読み取り成功</div><h2>${d.name}</h2><p class="quiz-question">${d.question}</p><div class="quiz-options">${options}</div><p class="quiz-help">ひとつ選んでね。まちがえても大丈夫！</p>`);
+modal.querySelectorAll('[data-choice]').forEach(btn=>btn.onclick=()=>{
+const correct=Number(btn.dataset.choice)===d.answer;
+openModal(`<img class="chi" src="${CHI}" alt="ぎんちゃん"><h2>${correct?'せいかい！':'なるほど！'}</h2><div class="quiz-explain">${correct?'🎉':'💡'} ${d.explain}</div><p>お金のひみつをひとつ学んだね！</p><button class="main-btn" id="finishQuiz">地図のピースをGET！</button>`);
+document.getElementById('finishQuiz').onclick=()=>award(d);
+});
+}
+function award(d){
+if(!state.found.includes(d.id))state.found.push(d.id);
+state.pending=null;state.intro=true;writeState();renderPieces();
+burst(state.found.length===dinos.length?80:24);
+const completed=state.found.length===dinos.length;
+openModal(`<img class="chi" src="${CHI}" alt="ぎんちゃん"><div class="scan-ok">✓ ミッションクリア！</div><h2>${d.name}<br>地図をGET！</h2><p>開いた地図はこのあとも消えないよ。</p>${completed?'<div class="hint-box">🎉 6つぜんぶ完成！金庫をタップしよう！</div>':''}<button class="main-btn" id="scanClose">${completed?'完成した地図を見る':'地図にもどる'}</button>`);
+document.getElementById('scanClose').onclick=()=>{closeModal();scrollMapIntoView();};
+}
+function burst(n){
+    const colors=['#f7c948','#f18d3d','#5fc392','#6fa8dc','#d58bd4','#ffffff'];
+    for(let i=0;i<n;i++){
+      const c=document.createElement('i'); c.style.left=(Math.random()*100)+'vw'; c.style.background=colors[i%colors.length]; c.style.setProperty('--drift',((Math.random()-.5)*180)+'px'); c.style.animationDelay=(Math.random()*.25)+'s'; c.style.animationDuration=(1.2+Math.random()*1.1)+'s'; confetti.appendChild(c); setTimeout(()=>c.remove(),2600);
+    }
+  }
+
+  function resolveScanPiece(params){
+    const raw=(params.get('piece')||'').trim().toLowerCase();
+    if(raw && aliases[raw]) return aliases[raw];
+    const old=(params.get('get')||'').trim();
+    if(old && legacyGet[old]) return legacyGet[old];
+    return null;
+  }
+
+  function cleanScanParams(){
+    try{
+      const clean=new URL(location.href);
+      clean.searchParams.delete('piece');
+      clean.searchParams.delete('get');
+      history.replaceState({},'',clean.pathname+clean.search+clean.hash);
+    }catch(e){}
+  }
+
+  function showScanResult(d,isNew){
+if(!d)return;
+if(isNew){showMissionQuiz(d);return;}
+openModal(`<img class="chi" src="${CHI}" alt="ぎんちゃん"><div class="scan-ok">✓ クリア済み</div><h2>${d.name}</h2><p>この地図はもう開いているよ！</p><button class="main-btn" id="dupClose">地図へもどる</button>`);
+document.getElementById('dupClose').onclick=()=>{closeModal();scrollMapIntoView();};
+}
+function scrollMapIntoView(){
+    try{ document.querySelector('.map-wrap').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+  }
+
+  function getKey(){
+if(state.found.length!==dinos.length)return;
+if(!state.key){state.key=true;writeState();burst(90);}updateStatus();showKey();
+}
+function showKey(){
+if(!state.key)return;
+openModal(`<img class="chi" src="${CHI}" alt="ぎんちゃん"><h2>🏅 こども銀行探検隊<br>認定証</h2><div class="reward-card"><div class="big-key">🏦</div><b>6つのミッション達成！</b><p>お金のひみつをぜんぶ学んだね！</p></div><p>この画面を会場のスタッフに見せよう！</p><button class="main-btn" id="keyClose">地図にもどる</button>`);
+document.getElementById('keyClose').onclick=closeModal;
+}
+// ---- In-app QR scanning: never navigates away from this page ----
+  const TOKEN_MAP={'OSAKABANK01:MONEY':'money','OSAKABANK01:SPEND':'spend','OSAKABANK01:SAVE':'save','OSAKABANK01:DEPOSIT':'deposit','OSAKABANK01:TOWN':'town','OSAKABANK01:PROTECT':'protect'};
+  let scannerStream=null;
+  let scannerRAF=0;
+  let scannerActive=false;
+  let scannerBusy=false;
+  let scannerLastFrame=0;
+  let scannerLastPayload='';
+  let scannerLastPayloadAt=0;
+  let qrLibraryPromise=null;
+
+  function loadExternalScript(src){
+    return new Promise((resolve,reject)=>{
+      const el=document.createElement('script');
+      el.src=src; el.async=true;
+      el.onload=()=>resolve();
+      el.onerror=()=>{el.remove();reject(new Error('load failed'));};
+      document.head.appendChild(el);
+    });
+  }
+
+  async function ensureQrLibrary(){
+    if(typeof window.jsQR==='function') return true;
+    if(qrLibraryPromise) return qrLibraryPromise;
+    qrLibraryPromise=(async()=>{
+      const sources=[
+        'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
+        'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js'
+      ];
+      for(const src of sources){
+        try{
+          await loadExternalScript(src);
+          if(typeof window.jsQR==='function') return true;
+        }catch(e){}
+      }
+      throw new Error('QR reader library unavailable');
+    })();
+    return qrLibraryPromise;
+  }
+
+  function resolveScannedPayload(payload){
+    const text=String(payload||'').trim();
+    if(!text) return null;
+    const upper=text.toUpperCase();
+    if(TOKEN_MAP[upper]) return {type:'piece',id:TOKEN_MAP[upper]};
+    if(upper==='OSAKABANK01:START') return {type:'start'};
+    try{
+      const u=new URL(text);
+      const path=u.pathname.replace(/\/+$/,'');
+      if(u.hostname.toLowerCase()!=='yoshi3710.github.io' || path!=='/osaka-bank') return null;
+      const id=resolveScanPiece(u.searchParams);
+      if(id && validIds.has(id)) return {type:'piece',id};
+      if(!u.searchParams.has('piece') && !u.searchParams.has('get')) return {type:'start'};
+    }catch(e){}
+    return null;
+  }
+
+  function setScannerStatus(message,type=''){
+    scannerStatus.textContent=message;
+    scannerStatus.classList.remove('error','ok');
+    if(type) scannerStatus.classList.add(type);
+  }
+
+  function stopScanner(){
+    scannerActive=false;
+    scannerBusy=false;
+    if(scannerRAF){cancelAnimationFrame(scannerRAF);scannerRAF=0;}
+    if(scannerStream){
+      scannerStream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});
+      scannerStream=null;
+    }
+    try{scanVideo.pause();scanVideo.srcObject=null;}catch(e){}
+    scannerOverlay.classList.remove('show');
+    scannerRetry.classList.remove('show');
+    scanBtn.disabled=false;
+  }
+
+  async function startScanner(){
+    if(scannerActive) return;
+    scannerOverlay.classList.add('show');
+    scannerRetry.classList.remove('show');
+    scanBtn.disabled=true;
+    setScannerStatus('QR読み取りを準備しています…');
+    try{
+      if(!window.isSecureContext) throw new Error('secure-context');
+      if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('camera-unsupported');
+      await ensureQrLibrary();
+      scannerStream=await navigator.mediaDevices.getUserMedia({
+        audio:false,
+        video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}
+      });
+      scanVideo.srcObject=scannerStream;
+      scanVideo.setAttribute('playsinline','');
+      await scanVideo.play();
+      scannerActive=true;
+      scannerBusy=false;
+      scannerLastFrame=0;
+      setScannerStatus('QRコードを白い枠の中に入れてね');
+      scannerRAF=requestAnimationFrame(scanFrame);
+    }catch(err){
+      scannerActive=false;
+      scanBtn.disabled=false;
+      if(scannerStream){scannerStream.getTracks().forEach(t=>{try{t.stop();}catch(e){}});scannerStream=null;}
+      try{scanVideo.pause();scanVideo.srcObject=null;}catch(e){}
+      const denied=err && (err.name==='NotAllowedError' || err.name==='SecurityError');
+      if(denied){
+        setScannerStatus('カメラの使用が許可されていません。Safariのカメラ許可をONにしてください。','error');
+      }else if(String(err&&err.message)==='secure-context'){
+        setScannerStatus('カメラはHTTPSの公開ページでのみ使用できます。GitHub PagesのURLから開いてください。','error');
+      }else{
+        setScannerStatus('カメラを開始できませんでした。通信とカメラ設定を確認して、もう一度押してください。','error');
+      }
+      scannerRetry.classList.add('show');
+    }
+  }
+
+  function scanFrame(now){
+    if(!scannerActive) return;
+    scannerRAF=requestAnimationFrame(scanFrame);
+    if(scannerBusy || now-scannerLastFrame<140) return;
+    if(scanVideo.readyState<2 || !scanVideo.videoWidth || !scanVideo.videoHeight) return;
+    scannerLastFrame=now;
+    try{
+      const maxWidth=620;
+      const scale=Math.min(1,maxWidth/scanVideo.videoWidth);
+      const w=Math.max(240,Math.round(scanVideo.videoWidth*scale));
+      const h=Math.max(180,Math.round(scanVideo.videoHeight*scale));
+      if(scanCanvas.width!==w) scanCanvas.width=w;
+      if(scanCanvas.height!==h) scanCanvas.height=h;
+      const ctx=scanCanvas.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(scanVideo,0,0,w,h);
+      const img=ctx.getImageData(0,0,w,h);
+      const code=window.jsQR(img.data,w,h,{inversionAttempts:'attemptBoth'});
+      if(code && code.data) handleInAppScan(code.data);
+    }catch(e){
+      // A single bad frame must never stop the event. Continue scanning.
+    }
+  }
+
+  function handleInAppScan(payload){
+    if(scannerBusy) return;
+    const now=Date.now();
+    const raw=String(payload||'').trim();
+    if(raw===scannerLastPayload && now-scannerLastPayloadAt<1500) return;
+    scannerLastPayload=raw; scannerLastPayloadAt=now;
+    const resolved=resolveScannedPayload(raw);
+    if(!resolved){
+      setScannerStatus('こども銀行のQRではないみたい。別のQRを読んでね。','error');
+      if(navigator.vibrate) navigator.vibrate(80);
+      return;
+    }
+    if(resolved.type==='start'){
+      setScannerStatus('これはSTART用。ミッションQRを読んでね！','error');
+      return;
+    }
+    const d=dinos.find(x=>x.id===resolved.id);
+    if(!d) return;
+    scannerBusy=true;
+    const isNew=!state.found.includes(d.id);
+    if(isNew)state.pending=d.id;
+    state.intro=true;
+    writeState(); // Save the pending mission before displaying the quiz.
+    renderPieces();
+    if(navigator.vibrate) navigator.vibrate([70,50,100]);
+    setScannerStatus(`${d.name}を読み取ったよ！ クイズを始めるよ…`,'ok');
+    setTimeout(()=>{
+      stopScanner();
+      showScanResult(d,isNew);
+    },260);
+  }
+
+  scanBtn.addEventListener('click',startScanner);
+  scannerClose.addEventListener('click',stopScanner);
+  scannerRetry.addEventListener('click',()=>{stopScanner();setTimeout(startScanner,60);});
+  // Load the QR decoder quietly while the child is reading the intro, so the first scan starts faster.
+  // QR decoder loads only when the camera button is pressed.
+
+  function setupTest(params){
+if(!['localhost','127.0.0.1'].includes(location.hostname)||!(params.has('test')||params.has('admin')))return;
+const panel=document.getElementById('testPanel');panel.classList.add('show');
+const box=document.getElementById('testButtons');box.innerHTML='';
+dinos.forEach(d=>{const b=document.createElement('button');b.textContent=d.name;b.onclick=()=>showScanResult(d,!state.found.includes(d.id));box.appendChild(b)});
+document.getElementById('resetBtn').onclick=()=>{if(!confirm('この端末の進行をリセットしますか？'))return;try{localStorage.removeItem(STORE)}catch(e){}document.cookie=`${COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;location.reload();};
+}
+// ---- Startup: QR acquisition is committed BEFORE any modal/animation ----
+  const params=new URLSearchParams(location.search);
+  const requestedPiece=(params.has('piece')||params.has('get')) ? resolveScanPiece(params) : null;
+  const hadScanParam=params.has('piece')||params.has('get');
+  let scanDino=null, scanWasNew=false;
+
+  if(requestedPiece && validIds.has(requestedPiece)){
+    scanDino=dinos.find(d=>d.id===requestedPiece);
+    scanWasNew=!state.found.includes(requestedPiece);
+    if(scanWasNew)state.pending=requestedPiece;
+    state.intro=true;
+    writeState();              // save first
+    cleanScanParams();         // then clean URL
+  }
+
+  renderPieces();              // map is revealed immediately
+  writeState();                // normalize + redundant backup
+  setupTest(params);
+
+  if(scanDino){
+    setTimeout(()=>showScanResult(scanDino,scanWasNew),100);
+  } else if(hadScanParam){
+    setTimeout(()=>{
+      openModal(`<img class="chi" src="${CHI}" alt="ちーちゃん"><h2>QRを確認してね</h2><p>このQRはこども銀行用として認識できませんでした。<br>スタッフに知らせてください。</p><button class="main-btn" id="badClose">地図にもどる</button>`);
+      document.getElementById('badClose').onclick=closeModal;
+    },100);
+  } else if(state.pending){
+    setTimeout(()=>{const d=dinos.find(x=>x.id===state.pending);if(d)showMissionQuiz(d);},180);
+  } else if(!state.intro){
+    setTimeout(showIntro,180);
+  }
+
+  document.getElementById('helpBtn').onclick=showHelp;
+  chest.onclick=getKey;
+  keyBadge.onclick=showKey;
+
+  // Multiple tabs / back-forward cache / returning from camera all resync safely.
+  window.addEventListener('storage',()=>{ syncFromStorage(); });
+  window.addEventListener('pageshow',()=>{ syncFromStorage(); });
+  window.addEventListener('pagehide',()=>{ if(scannerActive) stopScanner(); });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){ if(scannerActive) stopScanner(); }
+    else syncFromStorage();
+  });
+})();
+</script>
+</body>
+</html>
